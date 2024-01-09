@@ -1,0 +1,9 @@
+metrics:
+  counters:
+    - name: xdp_incoming_packets_total
+      help: Number of Incoming packets going through xdp
+      labels:
+        - name: from
+          size: 4
+          decoders:
+            - name: inet_ip
