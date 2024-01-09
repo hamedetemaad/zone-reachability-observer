@@ -3,7 +3,7 @@
 <img style="width: 48%;" src="images/zones01.png">
 <img style="width: 50%;" src="images/zones02.png">
 </div><br/>
-The ZoneReachabilityObserver lets you easily Visualize and Monitor the connections between different zones (subnets) in your network without generating any extra traffic such as icmp, ... .
+The ZoneReachabilityObserver lets you easily Visualize and Monitor the connections between different zones (subnets) in your network without generating any extra traffic such as icmp, ... .</br>
 This repository incorporates ebpf, <a href="https://github.com/cloudflare/ebpf_exporter">ebpf_exporter</a>, and grafana to provide a clear insight into zone reachability.
 
 ## Installation
