@@ -1,0 +1,57 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+  - name: Create ebpf_exporter directory
+    become: true
+    file:
+      path: /usr/local/bin/ebpf_exporter/
+      state: directory
+    tags:
+      - ebpf_exporter
+
+  - name: copy ebpf_exporter binary
+    copy:
+      src: xdp/ebpf_exporter
+      dest: /usr/local/bin/ebpf_exporter/ebpf_exporter
+    become: true
+    tags:
+      - ebpf_exporter
+
+  - name: copy xdp.yaml file
+    copy:
+      src: ./xdp/xdp.yaml
+      dest: /usr/local/bin/ebpf_exporter/xdp.yaml
+    become: true
+    tags:
+      - ebpf_exporter
+  - name: copy bpf file
+    copy:
+      src: ./xdp/xdp_{{ hostvars[inventory_hostname].interface }}.bpf.o
+      dest: /usr/local/bin/ebpf_exporter/xdp.bpf.o
+    become: true
+    tags:
+      - ebpf_exporter
+
+  - name: copy ebpf_exporter service file
+    copy:
+      src: ebpf_exporter.service
+      dest: /etc/systemd/system/ebpf_exporter.service
+    become: true
+    tags:
+      - ebpf_exporter
+
+  - name: enable ebpf_exporter service
+    ansible.builtin.systemd:
+      enabled: true
+      name: ebpf_exporter
+    become: true
+    tags:
+      - ebpf_exporter
+
+  - name: start ebpf_exporter service
+    ansible.builtin.systemd:
+      state: started
+      name: ebpf_exporter
+    become: true
+    tags:
+      - ebpf_exporter
