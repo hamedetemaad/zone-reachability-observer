@@ -7,3 +7,10 @@ metrics:
           size: 4
           decoders:
             - name: inet_ip
+    - name: xdp_incoming_ecn_total
+      help: Number of Incoming ECN packets going through xdp
+      labels:
+        - name: from
+          size: 4
+          decoders:
+            - name: inet_ip

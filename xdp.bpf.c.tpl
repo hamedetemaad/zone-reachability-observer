@@ -10,6 +10,10 @@ struct ipv4_key_t {
     u32 addr;
 };
 
+struct ecn_key_t {
+    u32 addr;
+};
+
 struct hdr_cursor {
     void *pos;
 };
@@ -20,6 +24,14 @@ struct {
     __type(key, struct ipv4_key_t);
     __type(value, u64);
 } xdp_incoming_packets_total SEC(".maps");
+
+struct {
+    __uint(type, BPF_MAP_TYPE_LRU_HASH);
+    __uint(max_entries, 1024);
+    __type(key, struct ecn_key_t);
+    __type(value, u64);
+} xdp_incoming_ecn_total SEC(".maps");
+
 
 // Primitive header extraction macros. See xdp-tutorial repo for more robust parsers:
 // * https://github.com/xdp-project/xdp-tutorial/blob/master/common/parsing_helpers.h
@@ -48,6 +60,7 @@ static int xdp_trace(struct xdp_md *ctx)
     void *data_end = (void *) (long) ctx->data_end;
     void *data = (void *) (long) ctx->data;
     struct ipv4_key_t key = {};
+    struct ecn_key_t ecn = {};
     struct hdr_cursor cursor = { .pos = data };
     struct ethhdr *eth_hdr;
     struct iphdr *ip_hdr;
@@ -65,6 +78,11 @@ static int xdp_trace(struct xdp_md *ctx)
 
         key.addr = ip_hdr->saddr;
         increment_map(&xdp_incoming_packets_total, &key, 1);
+        if ((ip_hdr->tos & 0x03) == 3) {
+          ecn.addr = ip_hdr->saddr;
+          increment_map(&xdp_incoming_ecn_total, &ecn, 1);
+        }
+
         break;
     case bpf_htons(ETH_P_IPV6):
         /*
